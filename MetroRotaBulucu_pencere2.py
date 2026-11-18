@@ -1,7 +1,7 @@
 #PENCERE 2
 
 # Her yedeklemede güncelleyin
-SURUM_NOTU = "Hatlar & Duraklar Rehberi'ne ana grup eklendi"
+SURUM_NOTU = "Semt & AVM / Merkez Sözlüğü geliştirildi"
 
 #kaydet ve 30 sn bekle
 import time
