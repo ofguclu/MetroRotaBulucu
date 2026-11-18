@@ -1,7 +1,7 @@
 #PENCERE 2
 
 # Her yedeklemede güncelleyin
-SURUM_NOTU = "Test"
+SURUM_NOTU = "Semt & AVM / Merkez Sözlüğü, Türkçe Karakter Duyarsız Arama ve 1 Harf Eksik / Yazım Hatası Toleransı ekledi"
 
 #kaydet ve 30 sn bekle
 import time
