@@ -1,7 +1,7 @@
 #PENCERE 2
 
 # Her yedeklemede güncelleyin
-SURUM_NOTU = "Semt & AVM / Merkez Sözlüğü geliştirildi"
+SURUM_NOTU = "Semt & AVM / Merkez Sözlüğü geliştirildi (Claude'un oluşturduğu sözlük () ile önceki sözlük merge edildi)"
 
 #kaydet ve 30 sn bekle
 import time

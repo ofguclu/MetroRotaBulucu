@@ -1,7 +1,6 @@
-import os
-from google.colab import files
+# Google Colab için İstanbul Raylı Sistemler & Metrobüs Rota Bulucu HTML Üreteci
 
-html_icerik = """<!DOCTYPE html>
+html_content = """<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
@@ -21,7 +20,6 @@ html_icerik = """<!DOCTYPE html>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 48px; }
 
-  /* Header */
   header {
     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
     color: white;
@@ -52,10 +50,8 @@ html_icerik = """<!DOCTYPE html>
   }
   .btn-guide:hover { background: rgba(255,255,255,0.24); }
 
-  /* Main Container */
   .container { max-width: 1020px; margin: 24px auto; padding: 0 16px; }
 
-  /* Search Panel */
   .search-card {
     background: var(--card);
     border-radius: 14px;
@@ -95,7 +91,6 @@ html_icerik = """<!DOCTYPE html>
   }
   .station-input:focus { outline: none; border-color: var(--primary); }
 
-  /* Autocomplete Dropdown */
   .autocomplete-list {
     position: absolute;
     top: calc(100% + 4px);
@@ -211,7 +206,6 @@ html_icerik = """<!DOCTYPE html>
     color: #1e3a8a;
   }
 
-  /* Results Section */
   .results-header {
     margin: 22px 0 12px;
     display: flex;
@@ -223,7 +217,6 @@ html_icerik = """<!DOCTYPE html>
   .results-header h2 { font-size: 1.1rem; color: var(--text); }
   .results-hint { font-size: 0.83rem; color: var(--muted); }
 
-  /* Accordion Route Cards */
   .route-card {
     background: var(--card);
     border: 1.5px solid var(--border);
@@ -375,7 +368,6 @@ html_icerik = """<!DOCTYPE html>
     font-weight: 500;
   }
 
-  /* Modal for Lines Guide */
   .modal-backdrop {
     display: none;
     position: fixed;
@@ -488,7 +480,7 @@ html_icerik = """<!DOCTYPE html>
     <div class="inputs-grid">
       <div class="field-group">
         <label for="fromInput">Nereden (Durak veya Semt)</label>
-        <input type="text" id="fromInput" class="station-input" placeholder="Örn: Nişantaşı, cemberlitas, Kadıköy..." autocomplete="off">
+        <input type="text" id="fromInput" class="station-input" placeholder="Örn: Nişantaşı, çemberlitaş, Kadıköy..." autocomplete="off">
         <div id="fromList" class="autocomplete-list"></div>
       </div>
 
@@ -514,14 +506,13 @@ html_icerik = """<!DOCTYPE html>
       <span class="chip-example" onclick="setExample('Nişantaşı', 'Bağdat Caddesi')">Nişantaşı → Bağdat Caddesi</span>
       <span class="chip-example" onclick="setExample('Beylikdüzü Sondurak', 'Sabiha Gökçen Havalimanı')">Beylikdüzü → Sabiha Gökçen</span>
       <span class="chip-example" onclick="setExample('Galataport', 'Bebek')">Galataport → Bebek</span>
-      <span class="chip-example" onclick="setExample('Akasya AVM', 'cemberlitas')">Akasya AVM → cemberlitas</span>
+      <span class="chip-example" onclick="setExample('Akasya AVM', 'çemberlitaş')">Akasya AVM → çemberlitaş</span>
     </div>
   </div>
 
   <div id="resultsContainer"></div>
 </div>
 
-<!-- Hatlar Rehberi Modal -->
 <div id="guideModal" class="modal-backdrop" onclick="if(event.target===this) closeGuide()">
   <div class="modal-box">
     <div class="modal-head">
@@ -856,7 +847,6 @@ const LINES = {
   }
 };
 
-// Eklenen dosyadan alınan dizi formatındaki Semt & Merkez Sözlüğü[cite: 4]
 const SEMT_ESLESMELERI = {
   "Nişantaşı": ["Osmanbey"],
   "Teşvikiye": ["Osmanbey"],
@@ -875,7 +865,6 @@ const SEMT_ESLESMELERI = {
   "Lütfi Kırdar Kongre ve Sergi Sarayı": ["Osmanbey"],
   "Bomontiada": ["Osmanbey"],
   "Şişli Etfal Hastanesi Eski Yerleşkesi": ["Osmanbey"],
-
   "Cihangir": ["Taksim"],
   "Gümüşsuyu": ["Taksim", "Kabataş"],
   "Talimhane": ["Taksim"],
@@ -892,7 +881,6 @@ const SEMT_ESLESMELERI = {
   "Taksim Eğitim ve Araştırma Hastanesi": ["Taksim"],
   "Taksim Polis Merkezi": ["Taksim"],
   "Pera Palace": ["Taksim"],
-
   "Kasımpaşa": ["Şişhane"],
   "Pera": ["Şişhane"],
   "Galata": ["Şişhane", "Tünel"],
@@ -914,7 +902,6 @@ const SEMT_ESLESMELERI = {
   "Balık Pazarı": ["Galatasaray"],
   "Nevizade": ["Galatasaray"],
   "Fransız Sokağı": ["Galatasaray"],
-
   "Karaköy": ["Karaköy", "Tophane"],
   "Karaköy İskele": ["Karaköy"],
   "Karaköy İskelesi": ["Karaköy"],
@@ -928,7 +915,6 @@ const SEMT_ESLESMELERI = {
   "Galataport": ["Tophane"],
   "Nusretiye Camii": ["Tophane"],
   "İstanbul Modern": ["Tophane", "Şişhane"],
-
   "Beşiktaş": ["Yıldız", "Kabataş"],
   "Beşiktaş Çarşı": ["Yıldız"],
   "Ortaköy": ["Yıldız"],
@@ -941,7 +927,6 @@ const SEMT_ESLESMELERI = {
   "Fulya": ["Fulya", "Şişli - Mecidiyeköy"],
   "Fulya Mahallesi": ["Fulya"],
   "Liv Hospital Ulus": ["Fulya"],
-
   "Balmumcu": ["Gayrettepe"],
   "Esentepe": ["Gayrettepe", "Şişli - Mecidiyeköy"],
   "Zorlu Center": ["Gayrettepe"],
@@ -953,7 +938,6 @@ const SEMT_ESLESMELERI = {
   "Yapı Kredi Plaza": ["Gayrettepe", "Levent"],
   "Borusan Holding": ["Gayrettepe"],
   "Büyükdere Caddesi": ["Gayrettepe", "Levent", "Şişli - Mecidiyeköy"],
-
   "Kanyon": ["Levent"],
   "Kanyon AVM": ["Levent"],
   "Özdilek": ["Levent"],
@@ -971,7 +955,6 @@ const SEMT_ESLESMELERI = {
   "Yapı Kredi Genel Müdürlüğü": ["Levent"],
   "DenizBank Genel Müdürlüğü": ["Levent"],
   "TEB Genel Müdürlüğü": ["Ümraniye"],
-
   "Akmerkez": ["Nispetiye"],
   "Ulus": ["Nispetiye"],
   "Etiler": ["Etiler", "Nispetiye", "Levent"],
@@ -984,7 +967,6 @@ const SEMT_ESLESMELERI = {
   "Hisarüstü": ["Boğaziçi Üniversitesi / Hisarüstü"],
   "Aşiyan": ["Aşiyan"],
   "Aşiyan Sahili": ["Aşiyan"],
-
   "Emirgan": ["İTÜ - Ayazağa"],
   "İstinye": ["İTÜ - Ayazağa", "Darüşşafaka"],
   "İstinye Park": ["İTÜ - Ayazağa", "Darüşşafaka"],
@@ -1001,7 +983,6 @@ const SEMT_ESLESMELERI = {
   "Hacıosman Korusu": ["Hacıosman"],
   "Sarıyer Belediyesi": ["Hacıosman"],
   "Sarıyer Kaymakamlığı": ["Hacıosman"],
-
   "Çeliktepe": ["4. Levent"],
   "Gültepe": ["Levent"],
   "Sanayi Mahallesi": ["Sanayi Mahallesi"],
@@ -1026,7 +1007,6 @@ const SEMT_ESLESMELERI = {
   "Şişli Kaymakamlığı": ["Şişli - Mecidiyeköy"],
   "İstanbul Adalet Sarayı": ["Çağlayan", "Şişli - Mecidiyeköy"],
   "Şişli Hamidiye Etfal Eğitim ve Araştırma Hastanesi": ["Şişli - Mecidiyeköy"],
-
   "4. Levent": ["4. Levent"],
   "Sapphire AVM": ["4. Levent"],
   "İstanbul Sapphire": ["4. Levent"],
@@ -1039,7 +1019,6 @@ const SEMT_ESLESMELERI = {
   "Maçka Demokrasi Parkı": ["Maçka"],
   "İTÜ Maçka Kampüsü": ["Maçka"],
   "Taşkışla": ["Taşkışla"],
-
   "Yenikapı": ["Yenikapı"],
   "Yenikapı Sahili": ["Yenikapı"],
   "Yenikapı İDO": ["Yenikapı"],
@@ -1066,7 +1045,6 @@ const SEMT_ESLESMELERI = {
   "Süleymaniye Camii": ["Vezneciler - İstanbul Ü."],
   "Şehzadebaşı": ["Vezneciler - İstanbul Ü."],
   "Şehzade Camii": ["Vezneciler - İstanbul Ü."],
-
   "Haliç": ["Haliç", "Halıcıoğlu"],
   "Unkapanı": ["Haliç", "Küçükpazar"],
   "Cibali": ["Cibali", "Haliç"],
@@ -1085,7 +1063,6 @@ const SEMT_ESLESMELERI = {
   "İstanbul Emniyet Müdürlüğü": ["Emniyet - Fatih", "Vatan"],
   "Vatan Caddesi": ["Emniyet - Fatih", "Vatan"],
   "İstanbul İl Emniyet Müdürlüğü": ["Vatan"],
-
   "Topkapı": ["Topkapı - Ulubatlı", "Pazartekke", "Topkapı"],
   "Topkapı Surları": ["Topkapı - Ulubatlı"],
   "Topkapı Kültür Parkı": ["Topkapı - Ulubatlı", "Pazartekke"],
@@ -1118,7 +1095,6 @@ const SEMT_ESLESMELERI = {
   "İstanbul Bilgi Üniversitesi": ["Üniversite", "Silahtarağa Mahallesi"],
   "Silahtarağa": ["Silahtarağa Mahallesi"],
   "Silahtarağa Mahallesi": ["Silahtarağa Mahallesi"],
-
   "Bayrampaşa": ["Bayrampaşa - Maltepe"],
   "Bayrampaşa-Maltepe": ["Bayrampaşa - Maltepe"],
   "Maltepe Mahallesi": ["Bayrampaşa - Maltepe"],
@@ -1163,7 +1139,6 @@ const SEMT_ESLESMELERI = {
   "Menderes": ["Menderes"],
   "Esenler Meydanı": ["Menderes"],
   "Menderes Mahallesi": ["Menderes"],
-
   "İncirli": ["Bakırköy - İncirli"],
   "Bakırköy": ["Bakırköy - İncirli", "Bakırköy Sahil", "Özgürlük Meydanı"],
   "Bakırköy Meydan": ["Özgürlük Meydanı"],
@@ -1259,7 +1234,6 @@ const SEMT_ESLESMELERI = {
   "TÜYAP": ["Beylikdüzü Sondurak"],
   "Tüyap Fuar ve Kongre Merkezi": ["Beylikdüzü Sondurak"],
   "Beylikdüzü Son Durak": ["Beylikdüzü Sondurak"],
-
   "Kadıköy": ["Kadıköy"],
   "Kadıköy Rıhtım": ["Kadıköy"],
   "Kadıköy Çarşı": ["Kadıköy"],
@@ -1282,7 +1256,6 @@ const SEMT_ESLESMELERI = {
   "Kadıköy Anadolu Lisesi": ["Moda"],
   "Barış Manço Evi": ["Moda"],
   "Yoğurtçu Parkı": ["Moda"],
-
   "Söğütlüçeşme": ["Söğütlüçeşme"],
   "Şükrü Saracoğlu Stadyumu": ["Söğütlüçeşme"],
   "Fenerbahçe Stadı": ["Söğütlüçeşme"],
@@ -1377,7 +1350,6 @@ const SEMT_ESLESMELERI = {
   "Viaport Asia": ["Kurtköy"],
   "Viaport AVM": ["Sabiha Gökçen Havalimanı", "Kurtköy"],
   "Sabiha Gökçen Havalimanı": ["Sabiha Gökçen Havalimanı"],
-
   "Üsküdar": ["Üsküdar"],
   "Üsküdar Meydanı": ["Üsküdar"],
   "Üsküdar Belediyesi": ["Üsküdar"],
@@ -1436,7 +1408,6 @@ const SEMT_ESLESMELERI = {
   "Sultanbeyli": ["Sultanbeyli"],
   "Sultanbeyli Belediyesi": ["Sultanbeyli"],
   "Sultanbeyli Kaymakamlığı": ["Sultanbeyli"],
-
   "Emin Ali Paşa": ["Emin Ali Paşa"],
   "Ayşekadın": ["Ayşekadın"],
   "Kozyatağı": ["Kozyatağı"],
@@ -1463,14 +1434,12 @@ const SEMT_ESLESMELERI = {
   "Yeditepe Üniversitesi": ["Kayışdağı"],
   "Parseller": ["Parseller"],
   "Maltepe Üniversitesi": ["Maltepe"],
-
   "Kabataş": ["Kabataş"],
   "Kabataş İskelesi": ["Kabataş"],
   "Dolmabahçe Sarayı": ["Kabataş"],
   "Fındıklı": ["Fındıklı"],
   "Mimar Sinan Üniversitesi": ["Kabataş"],
   "İstanbul Deniz Müzesi": ["Kabataş"],
-
   "Eminönü": ["Eminönü", "Sirkeci"],
   "Eminönü İskele": ["Eminönü"],
   "Eminönü İskelesi": ["Eminönü"],
@@ -1486,7 +1455,6 @@ const SEMT_ESLESMELERI = {
   "Sirkeci": ["Sirkeci", "Eminönü"],
   "Cağaloğlu": ["Sirkeci"],
   "Gülhane": ["Sirkeci", "Gülhane"],
-
   "Sultanahmet": ["Sultanahmet"],
   "Sultanahmet Meydanı": ["Sultanahmet"],
   "Ayasofya": ["Sultanahmet"],
@@ -1496,7 +1464,6 @@ const SEMT_ESLESMELERI = {
   "Arkeoloji Müzeleri": ["Sultanahmet"],
   "Topkapı Sarayı": ["Gülhane", "Sultanahmet"],
   "Gülhane Parkı": ["Gülhane", "Sultanahmet"],
-
   "Çemberlitaş": ["Çemberlitaş"],
   "Çemberlitaş Hamamı": ["Çemberlitaş"],
   "Beyazıt-Kapalıçarşı": ["Beyazıt - Kapalıçarşı"],
@@ -1521,7 +1488,6 @@ const SEMT_ESLESMELERI = {
   "Çapa Hastanesi": ["Çapa - Şehremini"],
   "Şehremini": ["Çapa - Şehremini"],
   "Pazartekke": ["Pazartekke"],
-
   "Cevizlibağ": ["Cevizlibağ"],
   "Atatürk Öğrenci Yurdu": ["Cevizlibağ"],
   "Merkezefendi": ["Merkezefendi"],
@@ -1532,10 +1498,8 @@ const SEMT_ESLESMELERI = {
   "Güneştepe": ["Güneştepe"],
   "Üçyüzlü": ["Üçyüzlü"],
   "Bağcılar Meydanı": ["Bağcılar Meydan"],
-
   "İskele Camii": ["Kadıköy - İskele Camii"],
   "Kadıköy-İskele Camii": ["Kadıköy - İskele Camii"],
-
   "Uluyol-Bereç": ["Uluyol - Bereç"],
   "Rami": ["Rami"],
   "Rami Kütüphanesi": ["Rami"],
@@ -1551,11 +1515,6 @@ const SEMT_ESLESMELERI = {
   "Yenimahalle": ["Yeni Mahalle"],
   "Mescid-i Selam": ["Mescid-i Selam"],
   "Sultangazi Belediyesi": ["Mescid-i Selam"],
-
-  "Balat": ["Balat"],
-  "Ayvansaray": ["Ayvansaray"],
-  "Feshane": ["Feshane"],
-  "Silahtarağa": ["Silahtarağa Mahallesi"],
   "Alibeyköy": ["Alibeyköy", "Alibeyköy Cep Otogarı"],
   "Alibeyköy Cep Otogarı": ["Alibeyköy Cep Otogarı"],
   "Çırçır": ["Çırçır"],
@@ -1567,7 +1526,6 @@ const SEMT_ESLESMELERI = {
   "Giyimkent": ["Tekstilkent - Giyimkent"],
   "Tekstilkent İş Merkezi": ["Tekstilkent - Giyimkent"],
   "Oruç Reis": ["Oruç Reis"],
-
   "Halkalı": ["Halkalı"],
   "Halkalı Marmaray": ["Halkalı"],
   "Halkalı Meydanı": ["Halkalı"],
@@ -1583,7 +1541,6 @@ const SEMT_ESLESMELERI = {
   "Yeşilköy Sahili": ["Yeşilköy"],
   "Yeşilköy Marina": ["Yeşilköy"],
   "Yeşilyurt": ["Yeşilyurt"],
-  "Yenimahalle": ["Yenimahalle"],
   "Kazlıçeşme": ["Kazlıçeşme"],
   "Yenikapı Marmaray": ["Yenikapı"],
   "Üsküdar Marmaray": ["Üsküdar"],
@@ -1610,7 +1567,6 @@ const SEMT_ESLESMELERI = {
   "Fatih Marmaray": ["Fatih"],
   "Osmangazi Marmaray": ["Osmangazi"],
   "Gebze Marmaray": ["Gebze"],
-
   "Burhaniye": ["Burhaniye"],
   "15 Temmuz Şehitler Köprüsü": ["15 Temmuz Şehitler Köprüsü"],
   "Çağlayan": ["Çağlayan"],
@@ -1624,11 +1580,9 @@ const SEMT_ESLESMELERI = {
   "Saadetdere Mahallesi": ["Saadetdere Mahallesi"],
   "Mustafa Kemal Paşa": ["Mustafa Kemal Paşa"],
   "Beylikdüzü Sondurak": ["Beylikdüzü Sondurak"],
-
   "Maçka Demokrasi Parkı": ["Maçka"],
   "Eyüp Sultan": ["Eyüpsultan Teleferik"],
   "Eyüpsultan Teleferik": ["Eyüpsultan Teleferik"],
-
   "İstanbul Valiliği": ["Cağaloğlu"],
   "İstanbul Büyükşehir Belediyesi": ["Saraçhane"],
   "İSKİ Genel Müdürlüğü": ["Saraçhane"],
@@ -1652,18 +1606,15 @@ const SEMT_ESLESMELERI = {
   "İstanbul İl Tarım ve Orman Müdürlüğü": ["Vatan"],
   "İstanbul İl Nüfus ve Vatandaşlık Müdürlüğü": ["Vatan"],
   "İstanbul PTT Başmüdürlüğü": ["Sirkeci"],
-
   "Borsa İstanbul": ["İTÜ - Ayazağa"],
   "Ziraat Bankası Genel Müdürlüğü": ["Finans Merkezi"],
   "VakıfBank Genel Müdürlüğü": ["Finans Merkezi"],
   "Halkbank Genel Müdürlüğü": ["Finans Merkezi"],
-
   "Marmara Forum": ["Bakırköy - İncirli"],
   "Torium AVM": ["Haramidere"],
   "Marmara Park": ["Beylikdüzü"],
   "Perlavista AVM": ["Beylikdüzü"],
   "Brandium AVM": ["Küçükbakkalköy"],
-
   "Acıbadem Maslak Hastanesi": ["Atatürk Oto Sanayi"],
   "Maslak Acıbadem": ["Atatürk Oto Sanayi"],
   "Memorial Şişli Hastanesi": ["Şişli - Mecidiyeköy"],
@@ -1676,7 +1627,6 @@ const SEMT_ESLESMELERI = {
   "Sultan Abdülhamid Han Eğitim ve Araştırma Hastanesi": ["Üsküdar"],
   "Yedikule Göğüs Hastalıkları Hastanesi": ["Kazlıçeşme"],
   "Süreyyapaşa Göğüs Hastalıkları Hastanesi": ["Maltepe"],
-
   "İstanbul Üniversitesi-Cerrahpaşa": ["Vezneciler - İstanbul Ü.", "Cerrahpaşa"],
   "İstanbul Teknik Üniversitesi Ayazağa Kampüsü": ["İTÜ - Ayazağa"],
   "Marmara Üniversitesi": ["Göztepe"],
@@ -1742,7 +1692,6 @@ function buildStationIndex(includeConstruction) {
   return map;
 }
 
-// Dizi formatındaki semt eşleşmelerini çoklu durak desteğiyle işleyen aday üretici
 function getSearchCandidates(includeConstruction) {
   const stationMap = buildStationIndex(includeConstruction);
   const candidates = [];
@@ -1751,7 +1700,6 @@ function getSearchCandidates(includeConstruction) {
   }
   for (const [semt, targets] of Object.entries(SEMT_ESLESMELERI)) {
     const targetArr = Array.isArray(targets) ? targets : [targets];
-    // Mevcut haritada geçerli olan ilk durağı öncelikli hedef seçiyoruz
     const validTarget = targetArr.find(st => stationMap.has(st)) || targetArr[0];
     if (stationMap.has(validTarget)) {
       candidates.push({
@@ -1775,23 +1723,17 @@ function matchCandidates(rawQuery, includeConstruction) {
   const scored = [];
   for (const item of candidates) {
     let score = Infinity;
-    if (item.norm === qNorm) score = 0;
-    else if (item.norm.startsWith(qNorm)) score = 1;
-    else if (item.norm.includes(qNorm)) score = 2;
-    else {
-      const maxAllowedDist = qNorm.length >= 7 ? 2 : (qNorm.length >= 4 ? 1 : 0);
-      if (maxAllowedDist > 0) {
-        const fullDist = levenshtein(qNorm, item.norm);
-        if (fullDist <= maxAllowedDist) score = 3 + fullDist;
-        else {
-          const words = item.norm.split(" ");
-          for (const w of words) {
-            if (Math.abs(w.length - qNorm.length) <= maxAllowedDist) {
-              const wDist = levenshtein(qNorm, w);
-              if (wDist <= maxAllowedDist) score = Math.min(score, 4 + wDist);
-            }
-          }
-        }
+    if (item.norm === qNorm) {
+      score = 0;
+    } else if (item.norm.startsWith(qNorm)) {
+      score = 1;
+    } else if (item.norm.includes(qNorm)) {
+      score = 2;
+    } else if (qNorm.length >= 4) {
+      const maxAllowedDist = qNorm.length >= 7 ? 2 : 1;
+      const fullDist = levenshtein(qNorm, item.norm);
+      if (fullDist <= maxAllowedDist) {
+        score = 3 + fullDist;
       }
     }
     if (score < Infinity) scored.push({ ...item, score });
@@ -2144,9 +2086,17 @@ function closeGuide() {
 </html>
 """
 
-dosya_adi = "MetroRotaBulucu.html"
-with open(dosya_adi, "w", encoding="utf-8") as f:
-    f.write(html_icerik)
+# Dosyayı kaydetme ve Colab'den indirme kodu
+filename = "MetroRotaBulucu.html"
+with open(filename, "w", encoding="utf-8") as f:
+    f.write(html_content)
 
-print(f"✅ '{dosya_adi}' başarıyla oluşturuldu ({os.path.getsize(dosya_adi) / 1024:.1f} KB).")
-files.download(dosya_adi)
+print(f"✅ '{filename}' başarıyla oluşturuldu!")
+
+# Google Colab ortamında otomatik dosya indirme tetikleyicisi
+try:
+    from google.colab import files
+    files.download(filename)
+    print("📥 Tarayıcınıza indirme başlatıldı.")
+except ImportError:
+    print("ℹ️ Colab dışı ortamda çalıştırıldı, dosya yerel dizine kaydedildi.")
