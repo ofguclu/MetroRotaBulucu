@@ -201,7 +201,6 @@ html_icerik = """<!DOCTYPE html>
   }
   .chip-example:hover { background: var(--accent-bg); border-color: #93c5fd; color: var(--primary); }
 
-  /* Resolution Info Banner */
   .info-banner {
     margin-top: 16px;
     padding: 11px 16px;
@@ -308,7 +307,6 @@ html_icerik = """<!DOCTYPE html>
   }
   .route-card.open .toggle-indicator { background: var(--primary); color: white; border-color: var(--primary); }
 
-  /* Accordion Body (Details) */
   .route-details {
     display: none;
     border-top: 1px solid var(--border);
@@ -393,8 +391,8 @@ html_icerik = """<!DOCTYPE html>
   .modal-box {
     background: white;
     width: 100%;
-    max-width: 820px;
-    max-height: 85vh;
+    max-width: 860px;
+    max-height: 88vh;
     border-radius: 14px;
     display: flex;
     flex-direction: column;
@@ -417,11 +415,23 @@ html_icerik = """<!DOCTYPE html>
     cursor: pointer;
   }
   .modal-body { padding: 18px 20px; overflow-y: auto; }
+
+  /* Kategorize Edilmiş Hat Butonları Stili */
+  .category-section { margin-bottom: 16px; }
+  .category-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+  }
   .guide-lines-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 16px;
   }
   .guide-line-btn {
     border: none;
@@ -431,9 +441,11 @@ html_icerik = """<!DOCTYPE html>
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
-    opacity: 0.88;
+    opacity: 0.85;
+    transition: 0.15s;
   }
-  .guide-line-btn:hover, .guide-line-btn.active { opacity: 1; outline: 2px solid #0f172a; }
+  .guide-line-btn:hover, .guide-line-btn.active { opacity: 1; outline: 2px solid #0f172a; transform: translateY(-1px); }
+
   .guide-stops-list {
     display: flex;
     flex-wrap: wrap;
@@ -442,6 +454,7 @@ html_icerik = """<!DOCTYPE html>
     background: #f8fafc;
     border-radius: 10px;
     border: 1px solid var(--border);
+    margin-top: 8px;
   }
   .guide-stop-chip {
     background: white;
@@ -518,15 +531,14 @@ html_icerik = """<!DOCTYPE html>
       <button class="modal-close" onclick="closeGuide()">✕</button>
     </div>
     <div class="modal-body">
-      <div id="guideLines" class="guide-lines-grid"></div>
-      <h4 id="guideSelectedTitle" style="margin-bottom:10px; font-size:0.95rem;"></h4>
+      <div id="guideCategoriesContainer"></div>
+      <h4 id="guideSelectedTitle" style="margin-top:16px; margin-bottom:8px; font-size:0.95rem;"></h4>
       <div id="guideStops" class="guide-stops-list"></div>
     </div>
   </div>
 </div>
 
 <script>
-// Sistem Tipleri (Lejant Görseline Göre)
 const LINES = {
   "B1": {
     code: "B1",
@@ -718,7 +730,7 @@ const LINES = {
   },
   "T1": {
     code: "T1",
-    type: "Çağdaş Tramvay",
+    type: "Tramvay",
     name: "Kabataş - Bağcılar",
     color: "#1e3a8a",
     avgMinPerStop: 1.9,
@@ -734,7 +746,7 @@ const LINES = {
   },
   "T2": {
     code: "T2",
-    type: "Nostaljik Tramvay",
+    type: "Tramvay",
     name: "Taksim - Tünel",
     color: "#65a30d",
     avgMinPerStop: 2.2,
@@ -743,7 +755,7 @@ const LINES = {
   },
   "T3": {
     code: "T3",
-    type: "Moda Tramvay",
+    type: "Tramvay",
     name: "Kadıköy - Moda Ring",
     color: "#9a3412",
     avgMinPerStop: 2.0,
@@ -755,7 +767,7 @@ const LINES = {
   },
   "T4": {
     code: "T4",
-    type: "Çağdaş Tramvay",
+    type: "Tramvay",
     name: "Topkapı - Mescid-i Selam",
     color: "#ea580c",
     avgMinPerStop: 2.0,
@@ -769,7 +781,7 @@ const LINES = {
   },
   "T5": {
     code: "T5",
-    type: "Çağdaş Tramvay",
+    type: "Tramvay",
     name: "Eminönü - Alibeyköy Cep Otogarı",
     color: "#7c3aed",
     avgMinPerStop: 2.0,
@@ -809,7 +821,7 @@ const LINES = {
   },
   "TF1": {
     code: "TF1",
-    type: "Teleferikler",
+    type: "Teleferik",
     name: "Maçka - Taşkışla",
     color: "#0d9488",
     avgMinPerStop: 3.5,
@@ -818,7 +830,7 @@ const LINES = {
   },
   "TF2": {
     code: "TF2",
-    type: "Teleferikler",
+    type: "Teleferik",
     name: "Eyüp - Piyer Loti",
     color: "#0f766e",
     avgMinPerStop: 3.0,
@@ -846,223 +858,26 @@ const LINES = {
   }
 };
 
-// En Genişletilmiş Semt, Mahalle, AVM ve Merkez Sözlüğü
 const SEMT_ESLESMELERI = {
-  // --- AVRUPA YAKASI (Merkez, Boğaz & Şişli / Beşiktaş) ---
-  "Nişantaşı": "Osmanbey",
-  "Teşvikiye": "Osmanbey",
-  "Bomonti": "Osmanbey",
-  "Kurtuluş": "Osmanbey",
-  "Feriköy": "Osmanbey",
-  "Pangaltı": "Osmanbey",
-  "Harbiye": "Osmanbey",
-  "Cihangir": "Taksim",
-  "Gümüşsuyu": "Taksim",
-  "Talimhane": "Taksim",
-  "Tarlabaşı": "Taksim",
-  "Kasımpaşa": "Şişhane",
-  "Pera": "Şişhane",
-  "Galata": "Şişhane",
-  "Asmalı Mescit": "Şişhane",
-  "Tepebaşı": "Şişhane",
-  "Karaköy İskele": "Karaköy",
-  "Galataport": "Tophane",
-  "Beşiktaş": "Yıldız",
-  "Beşiktaş Çarşı": "Yıldız",
-  "Ortaköy": "Yıldız",
-  "Akaretler": "Yıldız",
-  "Dikilitaş": "Yıldız",
-  "Yıldız Parkı": "Yıldız",
-  "Balmumcu": "Gayrettepe",
-  "Esentepe": "Gayrettepe",
-  "Zorlu Center": "Gayrettepe",
-  "Astoria": "Gayrettepe",
-  "Kanyon": "Levent",
-  "Özdilek": "Levent",
-  "Metrocity": "Levent",
-  "Akmerkez": "Nispetiye",
-  "Ulus": "Nispetiye",
-  "Etiler": "Etiler",
-  "Bebek": "Boğaziçi Üniversitesi / Hisarüstü",
-  "Rumelihisarı": "Boğaziçi Üniversitesi / Hisarüstü",
-  "Emirgan": "İTÜ - Ayazağa",
-  "İstinye": "İTÜ - Ayazağa",
-  "İstinye Park": "İTÜ - Ayazağa",
-  "Tarabya": "Hacıosman",
-  "Sarıyer": "Hacıosman",
-  "Sarıyer Merkez": "Hacıosman",
-  "Yeniköy": "İTÜ - Ayazağa",
-  "Kireçburnu": "Hacıosman",
-  "Maslak": "İTÜ - Ayazağa",
-  "Atatürk Oto Sanayi": "Atatürk Oto Sanayi",
-  "Darüşşafaka": "Darüşşafaka",
-  "Vadistanbul": "Seyrantepe",
-  "Çeliktepe": "4. Levent",
-  "Gültepe": "Levent",
-  "Talatpaşa": "Kağıthane",
-  "Gürsel": "Kağıthane",
-  "Hamidiye": "Kağıthane",
-  "Hasdal": "Hasdal",
-  "Göktürk": "Göktürk",
-  "Kemerburgaz": "Kemerburgaz",
-  "RAMS Park": "Seyrantepe",
-  "Ali Sami Yen Stadyumu": "Şişli - Mecidiyeköy",
-  "Cevahir AVM": "Şişli - Mecidiyeköy",
-
-  // --- AVRUPA YAKASI (Tarihi Yarımada & Haliç) ---
-  "Kapalıçarşı": "Beyazıt - Kapalıçarşı",
-  "Mısır Çarşısı": "Eminönü",
-  "Eminönü İskele": "Eminönü",
-  "Süleymaniye": "Vezneciler - İstanbul Ü.",
-  "Şehzadebaşı": "Vezneciler - İstanbul Ü.",
-  "Fatih": "Emniyet - Fatih",
-  "Fatih Camii": "Emniyet - Fatih",
-  "Çapa": "Çapa - Şehremini",
-  "Şehremini": "Çapa - Şehremini",
-  "Samatya": "Kocamustafapaşa",
-  "Yedikule Zindanları": "Yedikule",
-  "Cerrahpaşa": "Cerrahpaşa",
-  "Aksaray Meydan": "Aksaray",
-  "Laleli": "Laleli - İstanbul Ü.",
-  "Sultanahmet Meydanı": "Sultanahmet",
-  "Topkapı Sarayı": "Gülhane",
-  "Ayasofya": "Sultanahmet",
-  "Eminönü Meydan": "Eminönü",
-  "Eyüp": "Eyüpsultan Teleferik",
-  "Eyüpsultan": "Eyüpsultan Teleferik",
-  "Pierre Loti": "Piyer Loti",
-  "Feshane": "Feshane",
-  "Miniatürk": "Silahtarağa Mahallesi",
-  "Santralistanbul": "Üniversite",
-  "Bilgi Üniversitesi": "Üniversite",
-  "Silahtarağa": "Silahtarağa Mahallesi",
-  "Balat": "Balat",
-  "Fener": "Fener",
-  "Cibali": "Cibali",
-  "Haliç Üniversitesi": "Cibali",
-
-  // --- AVRUPA YAKASI (Batı: Bakırköy - Beylikdüzü - Başakşehir) ---
-  "Bakırköy Meydan": "Özgürlük Meydanı",
-  "Capacity": "Özgürlük Meydanı",
-  "Carousel": "Özgürlük Meydanı",
-  "Ataköy Marina": "Bakırköy Sahil",
-  "Galleria": "Bakırköy Sahil",
-  "Yeşilköy Sahil": "Yeşilköy",
-  "Florya Sahil": "Florya Akvaryum",
-  "Şirinevler": "Ataköy - Şirinevler",
-  "Yenibosna": "Yenibosna",
-  "Kuyumcukent": "Çobançeşme",
-  "Güneşli": "Mimar Sinan",
-  "Basın Ekspres": "29 Ekim Cumhuriyet",
-  "Mall of İstanbul": "MASKO",
-  "212 AVM": "İSTOÇ",
-  "Starcity AVM": "Çobançeşme",
-  "Kayaşehir": "Kayaşehir Merkez",
-  "Başakşehir": "Başakşehir - Metrokent",
-  "Çam ve Sakura Şehir Hastanesi": "Şehir Hastanesi",
-  "İstoç Ticaret Merkezi": "İSTOÇ",
-  "Olimpiyat Stadı": "Olimpiyat",
-  "Ispartakule": "Bahçeşehir",
-  "Bahçeşehir": "Bahçeşehir",
-  "Esenyurt": "Saadetdere Mahallesi",
-  "Avcılar": "Avcılar Merkez",
-  "Büyükçekmece": "Beylikdüzü Sondurak",
-  "TÜYAP": "Beylikdüzü Sondurak",
-  "Gaziosmanpaşa": "Sağmalcılar",
-  "Bayrampaşa": "Bayrampaşa - Maltepe",
-  "Forum İstanbul": "Kocatepe",
-  "IKEA Bayrampaşa": "Kocatepe",
-  "Esenler Otogar": "Otogar",
-  "Büyük İstanbul Otogarı": "Otogar",
-
-  // --- ANADOLU YAKASI (Kadıköy, Üsküdar & Acıbadem) ---
-  "Kadıköy Rıhtım": "Kadıköy",
-  "Kadıköy Çarşı": "Kadıköy",
-  "Moda": "Kadıköy",
-  "Bahariye": "Kadıköy",
-  "Altıyol": "Kadıköy",
-  "Kalamış": "Feneryolu",
-  "Fenerbahçe": "Feneryolu",
-  "Şükrü Saracoğlu Stadyumu": "Söğütlüçeşme",
-  "Bağdat Caddesi": "Suadiye",
-  "Şaşkınbakkal": "Suadiye",
-  "Erenköy": "Erenköy",
-  "Caddebostan": "Göztepe (Marmaray)",
-  "Çiftehavuzlar": "Göztepe (Marmaray)",
-  "Selamiçeşme": "Feneryolu",
-  "Kızıltoprak": "Söğütlüçeşme",
-  "Hasanpaşa": "Söğütlüçeşme",
-  "Koşuyolu": "Ayrılık Çeşmesi",
-  "Tepe Nautilus": "Ayrılık Çeşmesi",
-  "Akasya AVM": "Ünalan",
-  "Emaar Square AVM": "Ünalan",
-  "Libadiye": "Bulgurlu",
-  "Çamlıca": "Kısıklı",
-  "Çamlıca Tepesi": "Kısıklı",
-  "Kuzguncuk": "Üsküdar",
-  "Beylerbeyi": "Altunizade",
-  "Çengelköy": "Altunizade",
-  "Kandilli": "Altunizade",
-  "Kavacık": "Altunizade",
-  "Acıbadem": "Acıbadem",
-  "Haydarpaşa": "Söğütlüçeşme",
-
-  // --- ANADOLU YAKASI (Ataşehir, Ümraniye & Doğu Aksı) ---
-  "Ataşehir": "Yenisahra",
-  "Batı Ataşehir": "Kozyatağı",
-  "Watergarden": "Kozyatağı",
-  "Palladium AVM": "Yenisahra",
-  "Optimum AVM": "Yenisahra",
-  "Metropol İstanbul": "Ataşehir",
-  "İdealtepe": "İdealtepe",
-  "Süreyya Plajı": "Süreyya Plajı",
-  "Ümraniye Çarşı": "Çarşı",
-  "Canpark AVM": "Yamanevler",
-  "Akyaka Park": "Yamanevler",
-  "Buyaka AVM": "Çakmak",
-  "IKEA Ümraniye": "Çakmak",
-  "Şerifali": "İMES",
-  "Modoko": "MODOKO - KEYAP",
-  "Keyap": "MODOKO - KEYAP",
-  "Kayışdağı": "Kayışdağı",
-  "Yeditepe Üniversitesi": "Kayışdağı",
-  "Maltepe Sahil": "Maltepe",
-  "Maltepe Park AVM": "Huzurevi",
-  "Piazza AVM": "Huzurevi",
-  "Kartal Sahil": "Kartal",
-  "Kartal Adliyesi": "Hastane - Adliye",
-  "Pendik Sahil": "Pendik",
-  "Pendik İDO": "Pendik",
-  "Pendik YHT Gar": "Pendik",
-  "Viaport AVM": "Sabiha Gökçen Havalimanı",
-  "Kurtköy": "Kurtköy",
-  "Tuzla Sahil": "Tuzla",
-  "Tuzla Marina": "Tuzla",
-  "İçmeler": "İçmeler",
-  "Güzelyalı": "Güzelyalı",
-  "Sabiha Gökçen Havalimanı": "Sabiha Gökçen Havalimanı"
+  "Nişantaşı": "Osmanbey", "Teşvikiye": "Osmanbey", "Bomonti": "Osmanbey", "Kurtuluş": "Osmanbey", "Feriköy": "Osmanbey", "Pangaltı": "Osmanbey", "Harbiye": "Osmanbey",
+  "Cihangir": "Taksim", "Gümüşsuyu": "Taksim", "Talimhane": "Taksim", "Tarlabaşı": "Taksim", "Kasımpaşa": "Şişhane", "Pera": "Şişhane", "Galata": "Şişhane", "Asmalı Mescit": "Şişhane", "Tepebaşı": "Şişhane",
+  "Karaköy İskele": "Karaköy", "Galataport": "Tophane", "Beşiktaş": "Yıldız", "Beşiktaş Çarşı": "Yıldız", "Ortaköy": "Yıldız", "Akaretler": "Yıldız", "Dikilitaş": "Yıldız", "Yıldız Parkı": "Yıldız",
+  "Balmumcu": "Gayrettepe", "Esentepe": "Gayrettepe", "Zorlu Center": "Gayrettepe", "Astoria": "Gayrettepe", "Kanyon": "Levent", "Özdilek": "Levent", "Metrocity": "Levent",
+  "Akmerkez": "Nispetiye", "Ulus": "Nispetiye", "Etiler": "Etiler", "Bebek": "Boğaziçi Üniversitesi / Hisarüstü", "Rumelihisarı": "Boğaziçi Üniversitesi / Hisarüstü",
+  "Emirgan": "İTÜ - Ayazağa", "İstinye": "İTÜ - Ayazağa", "İstinye Park": "İTÜ - Ayazağa", "Tarabya": "Hacıosman", "Sarıyer": "Hacıosman", "Sarıyer Merkez": "Hacıosman", "Yeniköy": "İTÜ - Ayazağa", "Kireçburnu": "Hacıosman", "Maslak": "İTÜ - Ayazağa", "Atatürk Oto Sanayi": "Atatürk Oto Sanayi", "Darüşşafaka": "Darüşşafaka", "Vadistanbul": "Seyrantepe", "Çeliktepe": "4. Levent", "Gültepe": "Levent", "Sanayi Mahallesi": "Sanayi Mahallesi", "Talatpaşa": "Kağıthane", "Gürsel": "Kağıthane", "Hamidiye": "Kağıthane", "Hasdal": "Hasdal", "Göktürk": "Göktürk", "Kemerburgaz": "Kemerburgaz", "RAMS Park": "Seyrantepe", "Ali Sami Yen Stadyumu": "Şişli - Mecidiyeköy", "Cevahir AVM": "Şişli - Mecidiyeköy",
+  "Kapalıçarşı": "Beyazıt - Kapalıçarşı", "Mısır Çarşısı": "Eminönü", "Eminönü İskele": "Eminönü", "Süleymaniye": "Vezneciler - İstanbul Ü.", "Şehzadebaşı": "Vezneciler - İstanbul Ü.", "Fatih": "Emniyet - Fatih", "Fatih Camii": "Emniyet - Fatih", "Çapa": "Çapa - Şehremini", "Şehremini": "Çapa - Şehremini", "Samatya": "Kocamustafapaşa", "Yedikule Zindanları": "Yedikule", "Cerrahpaşa": "Cerrahpaşa", "Aksaray Meydan": "Aksaray", "Laleli": "Laleli - İstanbul Ü.", "Sultanahmet Meydanı": "Sultanahmet", "Topkapı Sarayı": "Gülhane", "Ayasofya": "Sultanahmet", "Eminönü Meydan": "Eminönü", "Eyüp": "Eyüpsultan Teleferik", "Eyüpsultan": "Eyüpsultan Teleferik", "Pierre Loti": "Piyer Loti", "Feshane": "Feshane", "Miniatürk": "Silahtarağa Mahallesi", "Santralistanbul": "Üniversite", "Bilgi Üniversitesi": "Üniversite", "Silahtarağa": "Silahtarağa Mahallesi", "Balat": "Balat", "Fener": "Fener", "Cibali": "Cibali", "Haliç Üniversitesi": "Cibali",
+  "Bakırköy Meydan": "Özgürlük Meydanı", "Capacity": "Özgürlük Meydanı", "Carousel": "Özgürlük Meydanı", "Ataköy Marina": "Bakırköy Sahil", "Galleria": "Bakırköy Sahil", "Yeşilköy Sahil": "Yeşilköy", "Florya Sahil": "Florya Akvaryum", "Şirinevler": "Ataköy - Şirinevler", "Yenibosna": "Yenibosna", "Kuyumcukent": "Çobançeşme", "Güneşli": "Mimar Sinan", "Basın Ekspres": "29 Ekim Cumhuriyet", "Mall of İstanbul": "MASKO", "212 AVM": "İSTOÇ", "Starcity AVM": "Çobançeşme", "Kayaşehir": "Kayaşehir Merkez", "Başakşehir": "Başakşehir - Metrokent", "Çam ve Sakura Şehir Hastanesi": "Şehir Hastanesi", "İstoç Ticaret Merkezi": "İSTOÇ", "Olimpiyat Stadı": "Olimpiyat", "Ispartakule": "Bahçeşehir", "Bahçeşehir": "Bahçeşehir", "Esenyurt": "Saadetdere Mahallesi", "Avcılar": "Avcılar Merkez", "Büyükçekmece": "Beylikdüzü Sondurak", "TÜYAP": "Beylikdüzü Sondurak", "Gaziosmanpaşa": "Sağmalcılar", "Bayrampaşa": "Bayrampaşa - Maltepe", "Forum İstanbul": "Kocatepe", "IKEA Bayrampaşa": "Kocatepe", "Esenler Otogar": "Otogar", "Büyük İstanbul Otogarı": "Otogar", "Atatürk Havalimanı": "Atatürk Havalimanı",
+  "Kadıköy Rıhtım": "Kadıköy", "Kadıköy Çarşı": "Kadıköy", "Moda": "Kadıköy", "Bahariye": "Kadıköy", "Altıyol": "Kadıköy", "Kalamış": "Feneryolu", "Fenerbahçe": "Feneryolu", "Şükrü Saracoğlu Stadyumu": "Söğütlüçeşme", "Bağdat Caddesi": "Suadiye", "Şaşkınbakkal": "Suadiye", "Erenköy": "Erenköy", "Caddebostan": "Göztepe (Marmaray)", "Çiftehavuzlar": "Göztepe (Marmaray)", "Selamiçeşme": "Feneryolu", "Kızıltoprak": "Söğütlüçeşme", "Hasanpaşa": "Söğütlüçeşme", "Koşuyolu": "Ayrılık Çeşmesi", "Tepe Nautilus": "Ayrılık Çeşmesi", "Akasya AVM": "Ünalan", "Emaar Square AVM": "Ünalan", "Libadiye": "Bulgurlu", "Çamlıca": "Kısıklı", "Çamlıca Tepesi": "Kısıklı", "Kuzguncuk": "Üsküdar", "Beylerbeyi": "Altunizade", "Çengelköy": "Altunizade", "Kandilli": "Altunizade", "Kavacık": "Altunizade", "Acıbadem": "Acıbadem", "Haydarpaşa": "Söğütlüçeşme",
+  "Ataşehir": "Yenisahra", "Batı Ataşehir": "Kozyatağı", "Watergarden": "Kozyatağı", "Palladium AVM": "Yenisahra", "Optimum AVM": "Yenisahra", "Metropol İstanbul": "Ataşehir", "İdealtepe": "İdealtepe", "Süreyya Plajı": "Süreyya Plajı", "Ümraniye Çarşı": "Çarşı", "Canpark AVM": "Yamanevler", "Akyaka Park": "Yamanevler", "Buyaka AVM": "Çakmak", "IKEA Ümraniye": "Çakmak", "Şerifali": "İMES", "Modoko": "MODOKO - KEYAP", "Keyap": "MODOKO - KEYAP", "Kayışdağı": "Kayışdağı", "Yeditepe Üniversitesi": "Kayışdağı", "Maltepe Sahil": "Maltepe", "Maltepe Park AVM": "Huzurevi", "Piazza AVM": "Huzurevi", "Kartal Sahil": "Kartal", "Kartal Adliyesi": "Hastane - Adliye", "Pendik Sahil": "Pendik", "Pendik İDO": "Pendik", "Pendik YHT Gar": "Pendik", "Viaport AVM": "Sabiha Gökçen Havalimanı", "Kurtköy": "Kurtköy", "Tuzla Sahil": "Tuzla", "Tuzla Marina": "Tuzla", "İçmeler": "İçmeler", "Güzelyalı": "Güzelyalı", "Sabiha Gökçen Havalimanı": "Sabiha Gökçen Havalimanı"
 };
 
-// Yaya Aktarma Tünelleri / Yakın İstasyon Eşleşmeleri
 const TRANSFER_LINKS = [
-  ["Şişli - Mecidiyeköy", "Mecidiyeköy", 4],
-  ["Gayrettepe", "Zincirlikuyu", 6],
-  ["Ünalan", "Uzunçayır", 5],
-  ["Özgürlük Meydanı", "Bakırköy", 4],
-  ["İncirli", "Bakırköy - İncirli", 3],
-  ["Ataköy - Şirinevler", "Şirinevler", 3],
-  ["Alibeyköy", "Alibeyköy Metro", 3],
-  ["Karadeniz Mahallesi", "KİPTAŞ - Venezia", 3],
-  ["Bağcılar Meydan", "Bağcılar Merkez", 4],
-  ["Aksaray", "Yusufpaşa", 4],
-  ["Vezneciler - İstanbul Ü.", "Laleli - İstanbul Ü.", 4],
-  ["Şişhane", "Tünel", 3],
-  ["Karaköy", "Eminönü", 6],
-  ["Kadıköy", "Ayrılık Çeşmesi", 5],
-  ["Bostancı", "Bostancı (M4)", 5],
-  ["Maltepe", "Maltepe (M4)", 6],
-  ["Kartal", "Kartal (M4)", 6],
-  ["Pendik", "Pendik (M4)", 6]
+  ["Şişli - Mecidiyeköy", "Mecidiyeköy", 4], ["Gayrettepe", "Zincirlikuyu", 6], ["Ünalan", "Uzunçayır", 5],
+  ["Özgürlük Meydanı", "Bakırköy", 4], ["İncirli", "Bakırköy - İncirli", 3], ["Ataköy - Şirinevler", "Şirinevler", 3],
+  ["Alibeyköy", "Alibeyköy Metro", 3], ["Karadeniz Mahallesi", "KİPTAŞ - Venezia", 3], ["Bağcılar Meydan", "Bağcılar Merkez", 4],
+  ["Aksaray", "Yusufpaşa", 4], ["Vezneciler - İstanbul Ü.", "Laleli - İstanbul Ü.", 4], ["Şişhane", "Tünel", 3],
+  ["Karaköy", "Eminönü", 6], ["Kadıköy", "Ayrılık Çeşmesi", 5], ["Bostancı", "Bostancı (M4)", 5],
+  ["Maltepe", "Maltepe (M4)", 6], ["Kartal", "Kartal (M4)", 6], ["Pendik", "Pendik (M4)", 6]
 ];
 
 function formatLineLabel(lineKey) {
@@ -1070,23 +885,10 @@ function formatLineLabel(lineKey) {
   return `${l.code} - ${l.type}`;
 }
 
-// Türkçe karakter normalizasyonu
 function normalizeTr(str) {
-  return str
-    .toLocaleLowerCase("tr-TR")
-    .replace(/ç/g, "c")
-    .replace(/ğ/g, "g")
-    .replace(/ı/g, "i")
-    .replace(/i̇/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ş/g, "s")
-    .replace(/ü/g, "u")
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return str.toLocaleLowerCase("tr-TR").replace(/ç/g, "c").replace(/ğ/g, "g").replace(/ı/g, "i").replace(/i̇/g, "i").replace(/ö/g, "o").replace(/ş/g, "s").replace(/ü/g, "u").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
-// Levenshtein Mesafesi (Harf Hataları / Eksikleri İçin)
 function levenshtein(a, b) {
   const m = a.length, n = b.length;
   if (m === 0) return n;
@@ -1118,26 +920,12 @@ function buildStationIndex(includeConstruction) {
 function getSearchCandidates(includeConstruction) {
   const stationMap = buildStationIndex(includeConstruction);
   const candidates = [];
-
   for (const [station, lines] of stationMap.entries()) {
-    candidates.push({
-      label: station,
-      targetStation: station,
-      isSemt: false,
-      norm: normalizeTr(station),
-      lines
-    });
+    candidates.push({ label: station, targetStation: station, isSemt: false, norm: normalizeTr(station), lines });
   }
-
   for (const [semt, targetStation] of Object.entries(SEMT_ESLESMELERI)) {
     if (stationMap.has(targetStation)) {
-      candidates.push({
-        label: semt,
-        targetStation: targetStation,
-        isSemt: true,
-        norm: normalizeTr(semt),
-        lines: stationMap.get(targetStation)
-      });
+      candidates.push({ label: semt, targetStation: targetStation, isSemt: true, norm: normalizeTr(semt), lines: stationMap.get(targetStation) });
     }
   }
   return candidates;
@@ -1151,38 +939,27 @@ function matchCandidates(rawQuery, includeConstruction) {
   const scored = [];
   for (const item of candidates) {
     let score = Infinity;
-
-    if (item.norm === qNorm) {
-      score = 0;
-    } else if (item.norm.startsWith(qNorm)) {
-      score = 1;
-    } else if (item.norm.includes(qNorm)) {
-      score = 2;
-    } else {
+    if (item.norm === qNorm) score = 0;
+    else if (item.norm.startsWith(qNorm)) score = 1;
+    else if (item.norm.includes(qNorm)) score = 2;
+    else {
       const maxAllowedDist = qNorm.length >= 7 ? 2 : (qNorm.length >= 4 ? 1 : 0);
       if (maxAllowedDist > 0) {
         const fullDist = levenshtein(qNorm, item.norm);
-        if (fullDist <= maxAllowedDist) {
-          score = 3 + fullDist;
-        } else {
+        if (fullDist <= maxAllowedDist) score = 3 + fullDist;
+        else {
           const words = item.norm.split(" ");
           for (const w of words) {
             if (Math.abs(w.length - qNorm.length) <= maxAllowedDist) {
               const wDist = levenshtein(qNorm, w);
-              if (wDist <= maxAllowedDist) {
-                score = Math.min(score, 4 + wDist);
-              }
+              if (wDist <= maxAllowedDist) score = Math.min(score, 4 + wDist);
             }
           }
         }
       }
     }
-
-    if (score < Infinity) {
-      scored.push({ ...item, score });
-    }
+    if (score < Infinity) scored.push({ ...item, score });
   }
-
   scored.sort((a, b) => a.score - b.score || (a.isSemt === b.isSemt ? 0 : a.isSemt ? 1 : -1) || a.label.localeCompare(b.label, "tr"));
   return scored.slice(0, 25);
 }
@@ -1191,23 +968,16 @@ function resolveUserInput(rawQuery, includeConstruction) {
   const stationMap = buildStationIndex(includeConstruction);
   const trimmed = rawQuery.trim();
   if (!trimmed) return null;
-
-  if (stationMap.has(trimmed)) {
-    return { station: trimmed, displayInput: trimmed, note: null };
-  }
+  if (stationMap.has(trimmed)) return { station: trimmed, displayInput: trimmed, note: null };
 
   const matches = matchCandidates(trimmed, includeConstruction);
   if (matches.length > 0) {
     const best = matches[0];
     let note = null;
-    if (best.isSemt) {
-      note = `<strong>"${trimmed}"</strong> semti/merkezi için en yakın durak olan <strong>${best.targetStation}</strong> seçildi.`;
-    } else if (best.targetStation.toLocaleLowerCase("tr-TR") !== trimmed.toLocaleLowerCase("tr-TR")) {
-      note = `<strong>"${trimmed}"</strong> araması <strong>${best.targetStation}</strong> istasyonu ile eşleştirildi.`;
-    }
+    if (best.isSemt) note = `<strong>"${trimmed}"</strong> semti/merkezi için en yakın durak olan <strong>${best.targetStation}</strong> seçildi.`;
+    else if (best.targetStation.toLocaleLowerCase("tr-TR") !== trimmed.toLocaleLowerCase("tr-TR")) note = `<strong>"${trimmed}"</strong> araması <strong>${best.targetStation}</strong> istasyonu ile eşleştirildi.`;
     return { station: best.targetStation, displayInput: best.isSemt ? `${best.label} (${best.targetStation})` : best.targetStation, note };
   }
-
   return null;
 }
 
@@ -1219,28 +989,15 @@ function setupAutocomplete(inputId, listId) {
     const includeConst = document.getElementById("includeConstruction").checked;
     const matches = matchCandidates(query, includeConst);
     list.innerHTML = "";
-
-    if (matches.length === 0) {
-      list.style.display = "none";
-      return;
-    }
+    if (matches.length === 0) { list.style.display = "none"; return; }
 
     matches.forEach(item => {
       const div = document.createElement("div");
       div.className = "autocomplete-item";
-      const badgesHtml = item.lines.map(lk =>
-        `<span class="mini-badge" style="background:${LINES[lk].color}">${LINES[lk].code}</span>`
-      ).join("");
-
-      const labelHtml = item.isSemt
-        ? `<span><strong>${item.label}</strong> <span class="semt-tag">➔ ${item.targetStation}</span></span>`
-        : `<span>${item.label}</span>`;
-
+      const badgesHtml = item.lines.map(lk => `<span class="mini-badge" style="background:${LINES[lk].color}">${LINES[lk].code}</span>`).join("");
+      const labelHtml = item.isSemt ? `<span><strong>${item.label}</strong> <span class="semt-tag">➔ ${item.targetStation}</span></span>` : `<span>${item.label}</span>`;
       div.innerHTML = `${labelHtml}<div class="mini-badges">${badgesHtml}</div>`;
-      div.onclick = () => {
-        input.value = item.isSemt ? item.label : item.targetStation;
-        list.style.display = "none";
-      };
+      div.onclick = () => { input.value = item.isSemt ? item.label : item.targetStation; list.style.display = "none"; };
       list.appendChild(div);
     });
     list.style.display = "block";
@@ -1248,11 +1005,7 @@ function setupAutocomplete(inputId, listId) {
 
   input.addEventListener("input", () => renderSuggestions(input.value));
   input.addEventListener("focus", () => renderSuggestions(input.value));
-  document.addEventListener("click", (e) => {
-    if (!input.contains(e.target) && !list.contains(e.target)) {
-      list.style.display = "none";
-    }
-  });
+  document.addEventListener("click", (e) => { if (!input.contains(e.target) && !list.contains(e.target)) list.style.display = "none"; });
 }
 
 setupAutocomplete("fromInput", "fromList");
@@ -1285,7 +1038,6 @@ function buildGraph(useMetrobus, includeConstruction) {
     for (let i = 0; i < line.stops.length; i++) {
       const st = line.stops[i];
       const node = `${st}||${lineKey}`;
-
       Object.entries(LINES).forEach(([otherKey, otherLine]) => {
         if (otherKey === lineKey) return;
         if (!useMetrobus && otherKey === "34") return;
@@ -1294,7 +1046,6 @@ function buildGraph(useMetrobus, includeConstruction) {
           addEdge(node, `${st}||${otherKey}`, 5, otherKey, "transfer", `${st} istasyonunda ${formatLineLabel(otherKey)} hattına aktarma`);
         }
       });
-
       if (i + 1 < line.stops.length) {
         const nextSt = line.stops[i + 1];
         const nextNode = `${nextSt}||${lineKey}`;
@@ -1309,59 +1060,37 @@ function buildGraph(useMetrobus, includeConstruction) {
       if (!useMetrobus && keyA === "34") return;
       if (lineA.status === "construction" && !includeConstruction) return;
       if (!lineA.stops.includes(stA)) return;
-
       Object.entries(LINES).forEach(([keyB, lineB]) => {
         if (!useMetrobus && keyB === "34") return;
         if (lineB.status === "construction" && !includeConstruction) return;
         if (!lineB.stops.includes(stB)) return;
-
-        addEdge(`${stA}||${keyA}`, `${stB}||${keyB}`, walkMin, keyB, "walk_transfer",
-          `${stA} → ${stB} yaya aktarma bağlantısı (~${walkMin} dk yürüme) ile ${formatLineLabel(keyB)} hattına geçiş`);
-        addEdge(`${stB}||${keyB}`, `${stA}||${keyA}`, walkMin, keyA, "walk_transfer",
-          `${stB} → ${stA} yaya aktarma bağlantısı (~${walkMin} dk yürüme) ile ${formatLineLabel(keyA)} hattına geçiş`);
+        addEdge(`${stA}||${keyA}`, `${stB}||${keyB}`, walkMin, keyB, "walk_transfer", `${stA} → ${stB} yaya aktarma bağlantısı (~${walkMin} dk yürüme) ile ${formatLineLabel(keyB)} hattına geçiş`);
+        addEdge(`${stB}||${keyB}`, `${stA}||${keyA}`, walkMin, keyA, "walk_transfer", `${stB} → ${stA} yaya aktarma bağlantısı (~${walkMin} dk yürüme) ile ${formatLineLabel(keyA)} hattına geçiş`);
       });
     });
   });
-
   return adj;
 }
 
 function searchSingleRoute(adj, startStation, endStation, penaltyConfig = {}) {
-  const dist = new Map();
-  const parent = new Map();
-  const visited = new Set();
-  const pq = [];
-
+  const dist = new Map(), parent = new Map(), visited = new Set(), pq = [];
   for (const node of adj.keys()) {
-    if (node.startsWith(startStation + "||")) {
-      dist.set(node, 0);
-      pq.push({ node, cost: 0 });
-    }
+    if (node.startsWith(startStation + "||")) { dist.set(node, 0); pq.push({ node, cost: 0 }); }
   }
-
   let endNode = null;
-
   while (pq.length > 0) {
     pq.sort((a, b) => a.cost - b.cost);
     const { node, cost } = pq.shift();
     if (visited.has(node)) continue;
     visited.add(node);
-
     const [st] = node.split("||");
-    if (st === endStation) {
-      endNode = node;
-      break;
-    }
+    if (st === endStation) { endNode = node; break; }
 
     for (const edge of (adj.get(node) || [])) {
       if (visited.has(edge.to)) continue;
       let extra = 0;
-      if (edge.type === "transfer" || edge.type === "walk_transfer") {
-        extra += penaltyConfig.transferPenalty || 0;
-      }
-      if (penaltyConfig.penalizedLines && penaltyConfig.penalizedLines.includes(edge.lineKey)) {
-        extra += 22;
-      }
+      if (edge.type === "transfer" || edge.type === "walk_transfer") extra += penaltyConfig.transferPenalty || 0;
+      if (penaltyConfig.penalizedLines && penaltyConfig.penalizedLines.includes(edge.lineKey)) extra += 22;
       const nextCost = cost + edge.cost + extra;
       if (nextCost < (dist.get(edge.to) ?? Infinity)) {
         dist.set(edge.to, nextCost);
@@ -1370,7 +1099,6 @@ function searchSingleRoute(adj, startStation, endStation, penaltyConfig = {}) {
       }
     }
   }
-
   if (!endNode) return null;
 
   const steps = [];
@@ -1380,20 +1108,12 @@ function searchSingleRoute(adj, startStation, endStation, penaltyConfig = {}) {
     steps.unshift({ fromNode: prevNode, toNode: curr, edge });
     curr = prevNode;
   }
-
   if (steps.length === 0) return null;
 
   const segments = [];
   let firstStation = steps[0].fromNode.split("||")[0];
   let firstLine = steps[0].fromNode.split("||")[1];
-  let seg = {
-    lineKey: firstLine,
-    from: firstStation,
-    to: firstStation,
-    stops: [firstStation],
-    minutes: 0,
-    transferNote: ""
-  };
+  let seg = { lineKey: firstLine, from: firstStation, to: firstStation, stops: [firstStation], minutes: 0, transferNote: "" };
 
   for (const s of steps) {
     const [toSt, toLine] = s.toNode.split("||");
@@ -1402,23 +1122,11 @@ function searchSingleRoute(adj, startStation, endStation, penaltyConfig = {}) {
       seg.stops.push(toSt);
       seg.minutes += s.edge.cost;
     } else {
-      if (seg.stops.length > 1) {
-        segments.push(seg);
-      }
-      seg = {
-        lineKey: toLine,
-        from: toSt,
-        to: toSt,
-        stops: [toSt],
-        minutes: s.edge.cost,
-        transferNote: s.edge.note
-      };
+      if (seg.stops.length > 1) segments.push(seg);
+      seg = { lineKey: toLine, from: toSt, to: toSt, stops: [toSt], minutes: s.edge.cost, transferNote: s.edge.note };
     }
   }
-  if (seg.stops.length > 1) {
-    segments.push(seg);
-  }
-
+  if (seg.stops.length > 1) segments.push(seg);
   if (segments.length === 0) return null;
 
   segments.forEach(sg => {
@@ -1431,14 +1139,7 @@ function searchSingleRoute(adj, startStation, endStation, penaltyConfig = {}) {
   const totalStops = segments.reduce((acc, s) => acc + (s.stops.length - 1), 0);
   const totalMinutes = Math.round(segments.reduce((acc, s) => acc + s.minutes, 0));
   const signature = segments.map(s => `${s.lineKey}:${s.from}->${s.to}`).join("|");
-
-  return {
-    segments,
-    transfers: segments.length - 1,
-    totalStops,
-    totalMinutes,
-    signature
-  };
+  return { segments, transfers: segments.length - 1, totalStops, totalMinutes, signature };
 }
 
 function findRoutes() {
@@ -1448,102 +1149,51 @@ function findRoutes() {
   const includeConst = document.getElementById("includeConstruction").checked;
   const container = document.getElementById("resultsContainer");
 
-  if (!fromRaw || !toRaw) {
-    container.innerHTML = `<div class="empty-state">Lütfen başlangıç ve varış duraklarını veya semtlerini yazın.</div>`;
-    return;
-  }
-
+  if (!fromRaw || !toRaw) { container.innerHTML = `<div class="empty-state">Lütfen başlangıç ve varış duraklarını veya semtlerini yazın.</div>`; return; }
   const fromResolved = resolveUserInput(fromRaw, includeConst);
   const toResolved = resolveUserInput(toRaw, includeConst);
 
   if (!fromResolved || !toResolved) {
     const missing = !fromResolved ? `"${fromRaw}"` : `"${toRaw}"`;
-    container.innerHTML = `<div class="empty-state">${missing} için uygun bir durak veya semt eşleşmesi bulunamadı. Lütfen yazımı kontrol edin veya açılır listeden seçin.</div>`;
+    container.innerHTML = `<div class="empty-state">${missing} için uygun bir durak veya semt eşleşmesi bulunamadı. Lütfen yazımı kontrol edin.</div>`;
     return;
   }
 
   const fromVal = fromResolved.station;
   const toVal = toResolved.station;
-
-  if (fromVal === toVal) {
-    container.innerHTML = `<div class="empty-state">Başlangıç ve varış noktaları aynı durağa (<strong>${fromVal}</strong>) karşılık geliyor.</div>`;
-    return;
-  }
+  if (fromVal === toVal) { container.innerHTML = `<div class="empty-state">Başlangıç ve varış noktaları aynı durağa (<strong>${fromVal}</strong>) karşılık geliyor.</div>`; return; }
 
   const adj = buildGraph(useMetrobus, includeConst);
   const found = [];
   const seenSignatures = new Set();
 
   const r1 = searchSingleRoute(adj, fromVal, toVal, { transferPenalty: 3 });
-  if (r1) {
-    r1.tag = "Önerilen";
-    r1.isBest = true;
-    found.push(r1);
-    seenSignatures.add(r1.signature);
-  }
-
+  if (r1) { r1.tag = "Önerilen"; r1.isBest = true; found.push(r1); seenSignatures.add(r1.signature); }
   const r2 = searchSingleRoute(adj, fromVal, toVal, { transferPenalty: 25 });
-  if (r2 && !seenSignatures.has(r2.signature)) {
-    r2.tag = "En Az Aktarma";
-    r2.isBest = false;
-    found.push(r2);
-    seenSignatures.add(r2.signature);
-  }
+  if (r2 && !seenSignatures.has(r2.signature)) { r2.tag = "En Az Aktarma"; r2.isBest = false; found.push(r2); seenSignatures.add(r2.signature); }
 
   if (r1) {
     const mainLine = r1.segments.reduce((a, b) => a.stops.length > b.stops.length ? a : b).lineKey;
     const r3 = searchSingleRoute(adj, fromVal, toVal, { transferPenalty: 4, penalizedLines: [mainLine] });
-    if (r3 && !seenSignatures.has(r3.signature)) {
-      r3.tag = "Alternatif Hat";
-      r3.isBest = false;
-      found.push(r3);
-      seenSignatures.add(r3.signature);
-    }
-
+    if (r3 && !seenSignatures.has(r3.signature)) { r3.tag = "Alternatif Hat"; r3.isBest = false; found.push(r3); seenSignatures.add(r3.signature); }
     const usedLines = r1.segments.map(s => s.lineKey);
     for (const lk of usedLines) {
       const r4 = searchSingleRoute(adj, fromVal, toVal, { transferPenalty: 2, penalizedLines: [lk] });
-      if (r4 && !seenSignatures.has(r4.signature)) {
-        r4.tag = "Alternatif Güzergah";
-        r4.isBest = false;
-        found.push(r4);
-        seenSignatures.add(r4.signature);
-        if (found.length >= 4) break;
-      }
+      if (r4 && !seenSignatures.has(r4.signature)) { r4.tag = "Alternatif Güzergah"; r4.isBest = false; found.push(r4); seenSignatures.add(r4.signature); if (found.length >= 4) break; }
     }
   }
 
-  if (found.length === 0) {
-    container.innerHTML = `<div class="empty-state">Seçilen filtrelerle bu iki nokta arasında uygun bir raylı sistem/metrobüs rotası bulunamadı.</div>`;
-    return;
-  }
-
-  const notes = [fromResolved.note, toResolved.note].filter(Boolean);
-  renderResults(fromVal, toVal, found, notes);
+  if (found.length === 0) { container.innerHTML = `<div class="empty-state">Seçilen filtrelerle bu iki nokta arasında uygun bir rota bulunamadı.</div>`; return; }
+  renderResults(fromVal, toVal, found, [fromResolved.note, toResolved.note].filter(Boolean));
 }
 
 function renderResults(fromVal, toVal, routes, notes) {
   const container = document.getElementById("resultsContainer");
-
-  let bannerHtml = "";
-  if (notes.length > 0) {
-    bannerHtml = `<div class="info-banner">ℹ️ ${notes.join(" &nbsp;|&nbsp; ")}</div>`;
-  }
-
-  let html = `
-    ${bannerHtml}
-    <div class="results-header">
-      <h2>${fromVal} → ${toVal} (${routes.length} Alternatif Rota)</h2>
-      <span class="results-hint">Detayları ve durak listesini görmek için bir alternatifin üzerine tıklayın</span>
-    </div>
-  `;
+  let html = notes.length > 0 ? `<div class="info-banner">ℹ️ ${notes.join(" &nbsp;|&nbsp; ")}</div>` : "";
+  html += `<div class="results-header"><h2>${fromVal} → ${toVal} (${routes.length} Alternatif Rota)</h2><span class="results-hint">Detayları görmek için bir alternatifin üzerine tıklayın</span></div>`;
 
   routes.forEach((route, idx) => {
-    const pillsHtml = route.segments.map(seg => {
-      const line = LINES[seg.lineKey];
-      return `<span class="line-pill" style="background:${line.color}">${formatLineLabel(seg.lineKey)}</span>`;
-    }).join(`<span class="chain-arrow">➔</span>`);
-
+    const pillsHtml = route.segments.map(seg => `<span class="line-pill" style="background:${LINES[seg.lineKey].color}">${formatLineLabel(seg.lineKey)}</span>`).join(`<span class="chain-arrow">➔</span>`);
     const transferText = route.transfers === 0 ? "Direkt (Aktarmasız)" : `${route.transfers} Aktarma`;
 
     const stepsHtml = route.segments.map((seg, sIdx) => {
@@ -1551,26 +1201,13 @@ function renderResults(fromVal, toVal, routes, notes) {
       const stopCount = seg.stops.length - 1;
       const midStops = seg.stops.slice(1, -1);
       const midId = `mid_${idx}_${sIdx}`;
-
       return `
         ${seg.transferNote ? `<div class="transfer-note">🔄 <strong>Aktarma:</strong> ${seg.transferNote}</div><br>` : ""}
         <div class="timeline-step" style="border-left-color:${line.color}">
           <div class="step-dot" style="border-color:${line.color}"></div>
-          <div class="step-header">
-            <span class="step-station">${seg.from}</span>
-            <span class="line-pill" style="background:${line.color}">${formatLineLabel(seg.lineKey)}</span>
-          </div>
-          <div class="step-direction">
-            <strong>${seg.direction}</strong> istikametine binin • <strong>${stopCount} durak</strong> (~${Math.round(seg.minutes)} dk) → <strong>${seg.to}</strong> durağında inin.
-          </div>
-          ${midStops.length > 0 ? `
-            <button class="stops-toggle" onclick="event.stopPropagation(); document.getElementById('${midId}').classList.toggle('show')">
-              Ara durakları göster/gizle (${midStops.length} durak)
-            </button>
-            <div id="${midId}" class="intermediate-stops">
-              ${midStops.join(" • ")}
-            </div>
-          ` : ""}
+          <div class="step-header"><span class="step-station">${seg.from}</span><span class="line-pill" style="background:${line.color}">${formatLineLabel(seg.lineKey)}</span></div>
+          <div class="step-direction"><strong>${seg.direction}</strong> istikametine binin • <strong>${stopCount} durak</strong> (~${Math.round(seg.minutes)} dk) → <strong>${seg.to}</strong> durağında inin.</div>
+          ${midStops.length > 0 ? `<button class="stops-toggle" onclick="event.stopPropagation(); document.getElementById('${midId}').classList.toggle('show')">Ara durakları göster/gizle (${midStops.length} durak)</button><div id="${midId}" class="intermediate-stops">${midStops.join(" • ")}</div>` : ""}
         </div>
       `;
     }).join("");
@@ -1579,35 +1216,18 @@ function renderResults(fromVal, toVal, routes, notes) {
       <div class="route-card" id="routeCard_${idx}">
         <div class="route-summary" onclick="toggleCard(${idx})">
           <div class="route-summary-left">
-            <div class="route-tag-row">
-              <span class="alt-number">${idx + 1}. Alternatif</span>
-              <span class="alt-badge ${route.isBest ? "best" : ""}">${route.tag}</span>
-            </div>
+            <div class="route-tag-row"><span class="alt-number">${idx + 1}. Alternatif</span><span class="alt-badge ${route.isBest ? "best" : ""}">${route.tag}</span></div>
             <div class="line-chain">${pillsHtml}</div>
           </div>
           <div class="route-summary-right">
-            <div class="metrics">
-              <div class="metric-time">~${route.totalMinutes} dk</div>
-              <div class="metric-sub">${transferText} • ${route.totalStops} durak</div>
-            </div>
-            <div class="toggle-indicator" id="toggleBtn_${idx}">
-              <span>Detayları Gör</span> ▾
-            </div>
+            <div class="metrics"><div class="metric-time">~${route.totalMinutes} dk</div><div class="metric-sub">${transferText} • ${route.totalStops} durak</div></div>
+            <div class="toggle-indicator" id="toggleBtn_${idx}"><span>Detayları Gör</span> ▾</div>
           </div>
         </div>
-        <div class="route-details">
-          <div class="timeline">
-            ${stepsHtml}
-            <div class="timeline-step">
-              <div class="step-dot" style="border-color:#16a34a; background:#16a34a;"></div>
-              <div class="step-station">🏁 ${toVal} (Varış)</div>
-            </div>
-          </div>
-        </div>
+        <div class="route-details"><div class="timeline">${stepsHtml}<div class="timeline-step"><div class="step-dot" style="border-color:#16a34a; background:#16a34a;"></div><div class="step-station">🏁 ${toVal} (Varış)</div></div></div></div>
       </div>
     `;
   });
-
   container.innerHTML = html;
 }
 
@@ -1618,38 +1238,68 @@ function toggleCard(idx) {
   btn.innerHTML = isOpen ? `<span>Detayları Gizle</span> ▴` : `<span>Detayları Gör</span> ▾`;
 }
 
+// Hatlar & Duraklar Rehberi Modal ve Kategorizasyon Fonksiyonları
 function openGuide() {
   const modal = document.getElementById("guideModal");
-  const linesDiv = document.getElementById("guideLines");
-  linesDiv.innerHTML = "";
+  const container = document.getElementById("guideCategoriesContainer");
+  container.innerHTML = "";
 
-  const keys = Object.keys(LINES);
-  keys.forEach((key, i) => {
-    const line = LINES[key];
-    const btn = document.createElement("button");
-    btn.className = "guide-line-btn" + (i === 0 ? " active" : "");
-    btn.style.background = line.color;
-    btn.textContent = formatLineLabel(key);
-    btn.onclick = () => {
-      document.querySelectorAll(".guide-line-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      showLineStops(key);
-    };
-    linesDiv.appendChild(btn);
+  // Belirttiğiniz Ana Gruplar ve Eşleşen Sistem Tipleri
+  const categories = [
+    { title: "Metrobüs", types: ["Metrobüs"] },
+    { title: "TCDD Banliyö Trenleri", types: ["TCDD Banliyö Trenleri"] },
+    { title: "Metro", types: ["Metro"] },
+    { title: "Mini Metro", types: ["Mini Metro"] },
+    { title: "Tramvay", types: ["Tramvay"] },
+    { title: "Füniküler / Tünel", types: ["Füniküler / Tünel"] },
+    { title: "Teleferik", types: ["Teleferik"] }
+  ];
+
+  let firstValidKey = null;
+
+  categories.forEach(cat => {
+    const matchingKeys = Object.keys(LINES).filter(k => cat.types.includes(LINES[k].type));
+    if (matchingKeys.length === 0) return;
+
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "category-title";
+    titleDiv.textContent = cat.title;
+    section.appendChild(titleDiv);
+
+    const gridDiv = document.createElement("div");
+    gridDiv.className = "guide-lines-grid";
+
+    matchingKeys.forEach(key => {
+      if (!firstValidKey) firstValidKey = key;
+      const line = LINES[key];
+      const btn = document.createElement("button");
+      btn.className = "guide-line-btn" + (key === firstValidKey ? " active" : "");
+      btn.style.background = line.color;
+      btn.textContent = `${line.code} - ${line.type}`;
+      btn.onclick = () => {
+        document.querySelectorAll(".guide-line-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        showLineStops(key);
+      };
+      gridDiv.appendChild(btn);
+    });
+
+    section.appendChild(gridDiv);
+    container.appendChild(section);
   });
 
-  showLineStops(keys[0]);
+  if (firstValidKey) showLineStops(firstValidKey);
   modal.classList.add("show");
 }
 
 function showLineStops(key) {
   const line = LINES[key];
-  document.getElementById("guideSelectedTitle").textContent =
-    `${formatLineLabel(key)} — ${line.name} (${line.stops.length} Durak)`;
+  document.getElementById("guideSelectedTitle").textContent = `${line.code} - ${line.type} — ${line.name} (${line.stops.length} Durak)`;
   const stopsDiv = document.getElementById("guideStops");
-  stopsDiv.innerHTML = line.stops.map((s, idx) =>
-    `<span class="guide-stop-chip"><strong>${idx + 1}.</strong> ${s}</span>`
-  ).join("");
+  stopsDiv.innerHTML = line.stops.map((s, idx) => `<span class="guide-stop-chip"><strong>${idx + 1}.</strong> ${s}</span>`).join("");
 }
 
 function closeGuide() {
